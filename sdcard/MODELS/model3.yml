@@ -266,26 +266,30 @@ customFn:
       func: RGB_LED
       def: "combat,1,On"
    1:
+      swtch: "ON"
+      func: VOLUME
+      def: "S2,1"
+   2:
       swtch: "!L3"
       func: OVERRIDE_CHANNEL
       def: "2,0,1"
-   2:
+   3:
       swtch: "L3"
       func: PLAY_TRACK
       def: "armed,1,1x"
-   3:
+   4:
       swtch: "!L3"
       func: PLAY_TRACK
       def: "disarm,1,1x"
-   4:
+   5:
       swtch: "L10"
       func: PLAY_TRACK
-      def: "lowbat,1,5"
-   5:
+      def: "lowbat,1,1x"
+   6:
       swtch: "L11"
       func: PLAY_TRACK
       def: "critbat,1,2"
-   6:
+   7:
       swtch: "L12"
       func: PLAY_TRACK
       def: "caution,1,2"

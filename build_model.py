@@ -75,10 +75,11 @@ LOGIC = [
 # special function: (swtch, func, def).  Sounds are F-18/RWR themed (build_sounds.py).
 CUSTOM_FN = [
     ("ON",   "RGB_LED",          "combat,1,On"),   # gimbal LED rings (combat.lua)
+    ("ON",   "VOLUME",           "S2,1"),          # S2 pot = speaker volume
     ("!L3",  "OVERRIDE_CHANNEL", "2,0,1"),         # force CH3 to centre/off unless arm-safe
     ("L3",   "PLAY_TRACK",       "armed,1,1x"),    # weapon armed  -> ALR-67 missile launch x4
     ("!L3",  "PLAY_TRACK",       "disarm,1,1x"),   # weapon safe   -> deedle-deedle
-    ("L10",  "PLAY_TRACK",       "lowbat,1,5"),    # low volt      -> "Fuel low" (every 5 s)
+    ("L10",  "PLAY_TRACK",       "lowbat,1,1x"),   # low volt      -> "Fuel low" (once)
     ("L11",  "PLAY_TRACK",       "critbat,1,2"),   # critical volt -> "Bingo!" low, near-constant (every 2 s)
     ("L12",  "PLAY_TRACK",       "caution,1,2"),   # weapon hot while safe -> A320 cavalry x4 (every 2 s)
 ]
