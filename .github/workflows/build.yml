@@ -7,7 +7,6 @@ name: build-sdcard
 on:
   push:
     branches: ["**"]
-    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -39,12 +38,12 @@ jobs:
           path: dist/*.zip
           if-no-files-found: error
 
-      - name: Publish Release (on version tags)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Publish Release (every commit on main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: SD overlay v1.0.${{ github.run_number }}
+          generate_release_notes: true   # changelog: commits since the previous release
           files: dist/*.zip
-          body: |
-            TX15 combat model **ANT** — SD overlay.
-            Download the zip and copy its `MODELS/`, `SCRIPTS/`, `SOUNDS/` onto an
-            EdgeTX 2.12.x SD card (one that already has the base SD contents).
+          fail_on_unmatched_files: true

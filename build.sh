@@ -8,7 +8,6 @@ cd "$(dirname "$0")"
 
 echo ">> sounds";     python3 import_sounds.py
 echo ">> model";      python3 build_model.py
-echo ">> soundboard"; python3 build_soundboard.py
 echo ">> validate";   python3 validate.py
 
 VER="$(git describe --tags --always --dirty 2>/dev/null || date +%Y%m%d)"

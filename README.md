@@ -113,8 +113,6 @@ To edit the script: change `combat.lua` in this folder, then copy it to
 
 ## Backups
 `backups/model3.yml.orig` — the model before any edits.
-`backups/RGBLED.orig/` — the entire RGBLED script folder as it was (53 scripts),
-in case anything needs restoring.
 
 ## Verification done here
 - `combat.lua` passes `luac -p` and was run through a stubbed-API harness across
