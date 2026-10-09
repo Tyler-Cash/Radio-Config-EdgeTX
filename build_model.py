@@ -69,14 +69,18 @@ LOGIC = [
     ("FUNC_VPOS",  "SA,50",                0),   # L9 SA down -> steering reverse
     ("FUNC_VNEG",  "%s,%d" % (RXBT, VWARN), VDELAY),  # L10 low-volt warn
     ("FUNC_VNEG",  "%s,%d" % (RXBT, VCRIT), VDELAY),  # L11 low-volt critical
+    ("FUNC_AND",   "!L3,!L1",              0),        # L12 safe + weapon stick commanded (caution)
 ]
 
-# special function: (swtch, func, def)
+# special function: (swtch, func, def).  Sounds are F-18/RWR themed (build_sounds.py).
 CUSTOM_FN = [
-    ("ON",   "RGB_LED",          "combat,1,On"),  # gimbal LED rings (combat.lua)
-    ("!L3",  "OVERRIDE_CHANNEL", "2,0,1"),        # force CH3 to centre/off unless arm-safe
-    ("L10",  "PLAY_SOUND",       "Wrn1,1,5"),     # low-volt warn beep, repeat 5 s
-    ("L11",  "PLAY_SOUND",       "Wrn2,1,3"),     # critical beep, repeat 3 s
+    ("ON",   "RGB_LED",          "combat,1,On"),   # gimbal LED rings (combat.lua)
+    ("!L3",  "OVERRIDE_CHANNEL", "2,0,1"),         # force CH3 to centre/off unless arm-safe
+    ("L3",   "PLAY_TRACK",       "armed,1,1x"),    # weapon armed  -> master-arm tone
+    ("!L3",  "PLAY_TRACK",       "disarm,1,1x"),   # weapon safe   -> safe tone
+    ("L10",  "PLAY_TRACK",       "lowbat,1,5"),    # low volt      -> RWR search warning (every 5 s)
+    ("L11",  "PLAY_TRACK",       "critbat,1,3"),   # critical volt -> RWR launch warning (every 3 s)
+    ("L12",  "PLAY_TRACK",       "caution,1,2"),   # weapon hot while safe -> master caution (every 2 s)
 ]
 # ============================================================================
 
