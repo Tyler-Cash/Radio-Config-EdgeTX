@@ -20,6 +20,8 @@ if [ -z "$TARGET" ]; then
     if [ -f "${v}edgetx.sdcard.version" ]; then TARGET="$v"; break; fi
   done
   [ -n "$TARGET" ] || { echo "No mounted EdgeTX card found under /Volumes (put the radio in USB-storage mode, or pass an SD path)."; exit 1; }
+else
+  mkdir -p "$TARGET"   # explicit target (e.g. a sim SD folder): create if needed
 fi
 [ -d "$TARGET" ] || { echo "Target not a directory: $TARGET"; exit 1; }
 
