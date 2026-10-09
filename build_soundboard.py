@@ -12,11 +12,11 @@ OUT  = os.path.join(HERE, "soundboard.html")
 
 # event -> (file, label, EdgeTX trigger, sound descriptor, severity)
 EVENTS = [
-    ("armed.wav",  "WEAPON ARMED",  "SE down + stick seen idle (L3)",        "Master-arm rising two-tone + confirm chirp", "go"),
-    ("disarm.wav", "WEAPON SAFE",   "SE up / disarm (!L3)",                  "Calm descending stand-down tone",            "safe"),
-    ("caution.wav","MASTER CAUTION","Throttle commanded while safe (L12)",   "Double chirp — weapon hot but not armed",    "warn"),
-    ("lowbat.wav", "LOW BATTERY",   "RxBt < 7.0 V for 1 s (L10), every 5 s", "RWR search: slow buzzy acquisition beeps",   "warn"),
-    ("critbat.wav","CRITICAL BATT", "RxBt < 6.6 V for 1 s (L11), every 3 s", "RWR missile-launch: urgent fast warble",     "crit"),
+    ("armed.wav",  "WEAPON ARMED",  "SE down + stick seen idle (L3)",        "ALR-67 missile-launch deedle x4",          "go"),
+    ("disarm.wav", "WEAPON SAFE",   "SE up / disarm (!L3)",                  "'Deedle-deedle' RWR tone",                 "safe"),
+    ("caution.wav","MASTER CAUTION","Throttle commanded while safe (L12)",   "A320 cavalry charge x4",                   "warn"),
+    ("lowbat.wav", "LOW BATTERY",   "RxBt < 7.0 V for 1 s (L10), every 5 s", "'Fuel low' voice callout",                 "warn"),
+    ("critbat.wav","CRITICAL BATT", "RxBt < 6.6 V for 1 s (L11), every 2 s", "'Bingo!' callout - low volume, constant",  "crit"),
 ]
 
 def b64(fn):

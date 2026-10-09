@@ -76,11 +76,11 @@ LOGIC = [
 CUSTOM_FN = [
     ("ON",   "RGB_LED",          "combat,1,On"),   # gimbal LED rings (combat.lua)
     ("!L3",  "OVERRIDE_CHANNEL", "2,0,1"),         # force CH3 to centre/off unless arm-safe
-    ("L3",   "PLAY_TRACK",       "armed,1,1x"),    # weapon armed  -> master-arm tone
-    ("!L3",  "PLAY_TRACK",       "disarm,1,1x"),   # weapon safe   -> safe tone
-    ("L10",  "PLAY_TRACK",       "lowbat,1,5"),    # low volt      -> RWR search warning (every 5 s)
-    ("L11",  "PLAY_TRACK",       "critbat,1,3"),   # critical volt -> RWR launch warning (every 3 s)
-    ("L12",  "PLAY_TRACK",       "caution,1,2"),   # weapon hot while safe -> master caution (every 2 s)
+    ("L3",   "PLAY_TRACK",       "armed,1,1x"),    # weapon armed  -> ALR-67 missile launch x4
+    ("!L3",  "PLAY_TRACK",       "disarm,1,1x"),   # weapon safe   -> deedle-deedle
+    ("L10",  "PLAY_TRACK",       "lowbat,1,5"),    # low volt      -> "Fuel low" (every 5 s)
+    ("L11",  "PLAY_TRACK",       "critbat,1,2"),   # critical volt -> "Bingo!" low, near-constant (every 2 s)
+    ("L12",  "PLAY_TRACK",       "caution,1,2"),   # weapon hot while safe -> A320 cavalry x4 (every 2 s)
 ]
 # ============================================================================
 
