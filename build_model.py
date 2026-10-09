@@ -99,6 +99,37 @@ def ls(i, fn, df, dl):
 def cf(i, sw, fn, df):
     return ["   %d:" % i, '      swtch: "%s"' % sw, "      func: %s" % fn, '      def: "%s"' % df]
 
+def _opt(i, typ, key, val):
+    return ["                     %d:" % i, "                        type: %s" % typ,
+            "                        value: ", "                           %s: %s" % (key, val)]
+
+def _widget(z, name, opts):
+    out = ["            %d:" % z, "               widgetName: %s" % name,
+           "               widgetData: ", "                  options: "]
+    for i, o in enumerate(opts): out += _opt(i, *o)
+    return out
+
+def _value(src):   # Value widget: source, colour, shadow off, label/value align left
+    return ("Value", [("Source", "source", src), ("Color", "color", "COLIDX1"),
+                      ("Bool", "boolValue", 0), ("Unsigned", "unsignedValue", 0),
+                      ("Unsigned", "unsignedValue", 0)])
+
+def main_page():
+    """Page 1 (Layout4P2B): timer top-left, CH1-3 stacked bottom-left, battery on the right."""
+    zones = [("Timer", [("Unsigned", "unsignedValue", 0)]),
+             _value("ch(0)"), _value("ch(1)"), _value("ch(2)"), _value(RXBT)]
+    out = ["   0:", "      LayoutId: Layout4P2B", "      layoutData: ", "         zones: "]
+    for z, (n, o) in enumerate(zones): out += _widget(z, n, o)
+    out += ["         options: "]
+    for i, v in enumerate((1, 1, 1, 1, 0)):
+        out += ["            %d:" % i, "               type: Bool", "               value: ",
+                "                  boolValue: %d" % v]
+    return out
+
+TIMER = ["timers: ", "   0:", "      start: 0", '      swtch: "L3"', "      value: 0",
+         "      mode: START", "      countdownBeep: 0", "      minuteBeep: 0", "      persistent: 0",
+         "      countdownStart: 0", "      showElapsed: 0", "      extraHaptic: 0", '      name: "Arm"']
+
 def main():
     lines = io.open(SRC, encoding="utf-8", newline="").read().replace("\r\n", "\n").split("\n")
     def find(pfx):
@@ -121,6 +152,13 @@ def main():
     anchor = find("flightModeData:")
     if anchor == -1: anchor = find("moduleData:")
     lines[anchor:anchor] = block
+
+    # home screen page 1 (replace template page 0, keep the rest) + armed-time timer
+    a = find("screenData:") + 1
+    b = next(i for i in range(a + 1, len(lines)) if lines[i] == "   1:")
+    lines[a:b] = main_page()
+    t = find("telemetryProtocol:")
+    lines[t:t] = TIMER
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     io.open(OUT, "w", encoding="utf-8", newline="").write("\n".join(lines))

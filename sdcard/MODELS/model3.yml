@@ -3,6 +3,19 @@ header:
    name: "ANT"
    bitmap: ""
    labels: ""
+timers: 
+   0:
+      start: 0
+      swtch: "L3"
+      value: 0
+      mode: START
+      countdownBeep: 0
+      minuteBeep: 0
+      persistent: 0
+      countdownStart: 0
+      showElapsed: 0
+      extraHaptic: 0
+      name: "Arm"
 telemetryProtocol: 0
 thrTrim: 0
 noGlobalFunctions: 0
@@ -653,38 +666,110 @@ telemetrySensors:
             offset: 0
 screenData: 
    0:
-      LayoutId: Layout2P1
+      LayoutId: Layout4P2B
       layoutData: 
          zones: 
             0:
-               widgetName: ModelBmp
+               widgetName: Timer
                widgetData: 
                   options: 
                      0:
-                        type: Color
-                        value: 
-                           color: COLIDX3
-                     1:
                         type: Unsigned
                         value: 
                            unsignedValue: 0
+            1:
+               widgetName: Value
+               widgetData: 
+                  options: 
+                     0:
+                        type: Source
+                        value: 
+                           source: ch(0)
+                     1:
+                        type: Color
+                        value: 
+                           color: COLIDX1
                      2:
                         type: Bool
                         value: 
                            boolValue: 0
                      3:
-                        type: Color
+                        type: Unsigned
                         value: 
-                           color: COLIDX5
+                           unsignedValue: 0
                      4:
-                        type: Bool
+                        type: Unsigned
                         value: 
-                           boolValue: 1
-            1:
-               widgetName: Timer
+                           unsignedValue: 0
+            2:
+               widgetName: Value
                widgetData: 
                   options: 
                      0:
+                        type: Source
+                        value: 
+                           source: ch(1)
+                     1:
+                        type: Color
+                        value: 
+                           color: COLIDX1
+                     2:
+                        type: Bool
+                        value: 
+                           boolValue: 0
+                     3:
+                        type: Unsigned
+                        value: 
+                           unsignedValue: 0
+                     4:
+                        type: Unsigned
+                        value: 
+                           unsignedValue: 0
+            3:
+               widgetName: Value
+               widgetData: 
+                  options: 
+                     0:
+                        type: Source
+                        value: 
+                           source: ch(2)
+                     1:
+                        type: Color
+                        value: 
+                           color: COLIDX1
+                     2:
+                        type: Bool
+                        value: 
+                           boolValue: 0
+                     3:
+                        type: Unsigned
+                        value: 
+                           unsignedValue: 0
+                     4:
+                        type: Unsigned
+                        value: 
+                           unsignedValue: 0
+            4:
+               widgetName: Value
+               widgetData: 
+                  options: 
+                     0:
+                        type: Source
+                        value: 
+                           source: tele(10)
+                     1:
+                        type: Color
+                        value: 
+                           color: COLIDX1
+                     2:
+                        type: Bool
+                        value: 
+                           boolValue: 0
+                     3:
+                        type: Unsigned
+                        value: 
+                           unsignedValue: 0
+                     4:
                         type: Unsigned
                         value: 
                            unsignedValue: 0
