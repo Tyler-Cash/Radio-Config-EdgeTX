@@ -1,35 +1,82 @@
 #!/usr/bin/env python3
-"""Generate sdcard/MODELS/model3.yml for the TX15 combat robot from a clean
-template + an editable CONFIG block. This is the source of truth for the model's
-mixer/outputs/logic — edit CONFIG, run `python3 build_model.py`, test in the
-simulator, then `./deploy.sh`.
+"""Generate sdcard/MODELS/model3.yml for the TX15 combat robot.
 
-Base template: backups/model3.yml.orig (the untouched "New Multirotor"), whose
-inputs are I0=Rud, I1=Ele, I2=Thr, I3=Ail (Mode-2 radio: Thr=left-V, Ele=right-V,
-Ail=right-H, Rud=left-H).
+Edit CONFIG, run `python3 build_model.py`, test in the EdgeTX simulator, then
+`./deploy.sh`. Source of truth = this file; never hand-edit the card.
+
+Base template: backups/model3.yml.orig (untouched "New Multirotor").
+Mode-2 radio, inputs: I0=Rud(left L/R), I1=Ele(right U/D), I2=Thr(left U/D), I3=Ail(right L/R).
+
+CONTROL LAYOUT
+  CH1 steering     = Rud  (left stick L/R)      -> BBB white
+  CH2 forward/back = Ele  (right stick U/D)     -> BBB yellow
+  CH3 weapon       = Thr  (left stick U/D)      -> weapon ESC (REVERSIBLE / 3D)
+
+WEAPON (reversible ESC: channel 0% = idle/off, +100% fwd, -100% rev)
+  Stick bottom (rest) -> 0% (off).  Mid-stick -> 50%.  Top -> 100%.
+  Spin direction = GV1 polarity XOR live SA reversal.
+  Disarmed (or armed-but-not-idle-first) -> forced to centre (off).
+
+GV1  (Model -> Global Variables): weapon direction / motor-polarity fix.
+     0 = normal, 100 = reversed. One value flips spin direction.
+
+SA (3-pos) live reversal:
+  up   = normal
+  mid  = weapon reversed
+  down = weapon + steering reversed   (forward/back NOT reversed)
+
+ARM = SE (down = armed). Arm is "soft": the weapon only goes live after SE is
+down AND the weapon stick has been seen at idle (can't arm into a spun-up stick).
+
+2S low-voltage alarms on RxBt (tele10): warn 7.0 V, critical 6.6 V (3.5/3.3 V/cell).
 """
-import io, os, re, sys
+import io, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC  = os.path.join(HERE, "backups", "model3.yml.orig")
 OUT  = os.path.join(HERE, "sdcard", "MODELS", "model3.yml")
 
 # ============================== EDITABLE CONFIG ==============================
-# This encodes the Sep-6 baseline design. We iterate from here in the simulator.
-NAME = "ANT"
+NAME        = "ANT"
+IDLE_THRESH = -98     # Thr below this = weapon idle (for the soft-arm gate)
+VWARN       = 70      # RxBt tenths of a volt: 2S warn  = 7.0 V (3.5 V/cell)
+VCRIT       = 66      # RxBt tenths of a volt: 2S crit  = 6.6 V (3.3 V/cell)
+VDELAY      = 10      # alarm sustain (tenths of a second) so spin-up sag won't trip it
+RXBT        = "tele(10)"
 
-# Each mix line: (destCh 0-based, srcRaw, weight, offset, mltpx, swtch, name)
-#   mltpx: "ADD" or "REPL".  swtch: "NONE","SE2","!SE2","SF2", a logical "L1".. etc.
+# mix line: (destCh0, srcRaw, weight, offset, mltpx, swtch, name)
 MIXES = [
-    (0, "I1",  -100, 0, "ADD",  "NONE", "Drive"),  # CH1 fwd/back = Ele (right-V), reversed
-    (2, "I3",   100, 0, "ADD",  "NONE", "Steer"),  # CH3 steering = Ail (right-H)
-    (1, "I2",   100, 0, "ADD",  "NONE", "Weapon"), # CH2 weapon base = Thr (left-V)
-    (1, "MAX", -100, 0, "REPL", "!SE2", "Safe"),   # CH2 forced -100 when SE up (disarmed)
+    # CH1 steering (Rud), reversed when SA down (L9)
+    (0, "I0",  100, 0, "ADD",  "NONE", "Steer"),
+    (0, "I0", -100, 0, "REPL", "L9",   "SteerR"),
+    # CH2 forward/back (Ele) -- direction set on the bench; flip weight sign if wrong
+    (1, "I1",  100, 0, "ADD",  "NONE", "Drive"),
+    # CH3 weapon (Thr): off at rest, 50% at mid, 100% at top; fwd/rev gated
+    (2, "I2",   50,  50, "REPL", "L7",  "WpnF"),   # forward  (armsafe & not net-reverse)
+    (2, "I2",  -50, -50, "REPL", "L8",  "WpnR"),   # reverse  (armsafe & net-reverse)
 ]
 
-# Special functions: (swtch, func, def)
+# logical switch: (func, def, delay)
+LOGIC = [
+    ("FUNC_VNEG",  "Thr,%d" % IDLE_THRESH, 0),   # L1 weapon stick idle
+    ("FUNC_AND",   "SE2,L1",               0),   # L2 armed AND idle
+    ("FUNC_STICKY","L2,!SE2",              0),   # L3 arm-safe latch (set armed+idle, reset disarm)
+    ("FUNC_VPOS",  "GV1,0",                0),   # L4 base polarity reversed (GV1 > 0)
+    ("FUNC_VPOS",  "SA,-50",               0),   # L5 SA mid/down -> weapon reverse
+    ("FUNC_XOR",   "L4,L5",                0),   # L6 net weapon reverse
+    ("FUNC_AND",   "L3,!L6",               0),   # L7 weapon FORWARD enabled
+    ("FUNC_AND",   "L3,L6",                0),   # L8 weapon REVERSE enabled
+    ("FUNC_VPOS",  "SA,50",                0),   # L9 SA down -> steering reverse
+    ("FUNC_VNEG",  "%s,%d" % (RXBT, VWARN), VDELAY),  # L10 low-volt warn
+    ("FUNC_VNEG",  "%s,%d" % (RXBT, VCRIT), VDELAY),  # L11 low-volt critical
+]
+
+# special function: (swtch, func, def)
 CUSTOM_FN = [
-    ("ON", "RGB_LED", "combat,1,On"),   # gimbal LED rings (combat.lua)
+    ("ON",   "RGB_LED",          "combat,1,On"),  # gimbal LED rings (combat.lua)
+    ("!L3",  "OVERRIDE_CHANNEL", "2,0,1"),        # force CH3 to centre/off unless arm-safe
+    ("L10",  "PLAY_SOUND",       "Wrn1,1,5"),     # low-volt warn beep, repeat 5 s
+    ("L11",  "PLAY_SOUND",       "Wrn2,1,3"),     # critical beep, repeat 3 s
 ]
 # ============================================================================
 
@@ -40,6 +87,10 @@ def mix(d, src, w, off, m, sw, nm):
             '   swtch: "%s"' % sw, "   delayUp: 0", "   delayDown: 0", "   speedUp: 0",
             "   speedDown: 0", '   name: "%s"' % nm]
 
+def ls(i, fn, df, dl):
+    return ["   %d:" % i, "      func: %s" % fn, '      def: "%s"' % df, '      andsw: "NONE"',
+            "      lsPersist: 0", "      lsState: 0", "      delay: %d" % dl, "      duration: 0"]
+
 def cf(i, sw, fn, df):
     return ["   %d:" % i, '      swtch: "%s"' % sw, "      func: %s" % fn, '      def: "%s"' % df]
 
@@ -49,25 +100,23 @@ def main():
         for i, l in enumerate(lines):
             if l.startswith(pfx): return i
         return -1
-    # name
-    txt = "\n".join(lines).replace('name: "New Multirotor"', 'name: "%s"' % NAME, 1)
-    lines = txt.split("\n")
+
+    lines = "\n".join(lines).replace('name: "New Multirotor"', 'name: "%s"' % NAME, 1).split("\n")
+
     # mixData
     md = ["mixData: "]
     for m in MIXES: md += mix(*m)
     lines[find("mixData:"):find("expoData:")] = md
-    # customFn: replace the block if present, else insert it before flightModeData
-    cfb = ["customFn: "]
-    for i, c in enumerate(CUSTOM_FN): cfb += cf(i, *c)
-    cs = find("customFn:")
-    if cs != -1:
-        # end of the existing customFn block = next top-level key
-        end = next((j for j in range(cs + 1, len(lines)) if lines[j] and lines[j][0].isalpha()), len(lines))
-        lines[cs:end] = cfb
-    else:
-        anchor = find("flightModeData:")
-        if anchor == -1: anchor = find("moduleData:")
-        lines[anchor:anchor] = cfb
+
+    # logicalSw + customFn inserted before flightModeData (template has neither)
+    block = ["logicalSw: "]
+    for i, L in enumerate(LOGIC): block += ls(i, *L)
+    block += ["customFn: "]
+    for i, c in enumerate(CUSTOM_FN): block += cf(i, *c)
+    anchor = find("flightModeData:")
+    if anchor == -1: anchor = find("moduleData:")
+    lines[anchor:anchor] = block
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     io.open(OUT, "w", encoding="utf-8", newline="").write("\n".join(lines))
     print("wrote", OUT, "(%d lines)" % len(lines))

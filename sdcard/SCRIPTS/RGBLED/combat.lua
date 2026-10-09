@@ -17,8 +17,8 @@
 local CFG = {
   -- Battery, right ring. Values are the ROBOT pack voltage from telemetry.
   BATT_SENSOR = "RxBt",  -- ELRS RX vbat sensor (confirmed discovered on this model)
-  V_FULL      = 12.6,    -- 3S full  (4.20 V/cell) -> full green
-  V_DEAD      = 9.9,     -- 3S dead  (3.30 V/cell) -> full red
+  V_FULL      = 8.4,     -- 2S full  (4.20 V/cell) -> full green
+  V_DEAD      = 6.6,     -- 2S dead  (3.30 V/cell) -> full red
 
   -- Weapon, left ring. Commanded throttle today; swap to a real RPM sensor later
   -- by setting WEAPON_SRC to the sensor name and WEAPON_MIN=0, WEAPON_MAX=<max eRPM>.

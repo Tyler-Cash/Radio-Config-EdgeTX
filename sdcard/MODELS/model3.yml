@@ -23,24 +23,7 @@ beepANACenter: 0
 mixData: 
  -
    destCh: 0
-   srcRaw: "I1"
-   carryTrim: 0
-   mixWarn: 0
-   mltpx: ADD
-   delayPrec: 0
-   speedPrec: 0
-   flightModes: 000000000
-   weight: -100
-   offset: 0
-   swtch: "NONE"
-   delayUp: 0
-   delayDown: 0
-   speedUp: 0
-   speedDown: 0
-   name: "Drive"
- -
-   destCh: 2
-   srcRaw: "I3"
+   srcRaw: "I0"
    carryTrim: 0
    mixWarn: 0
    mltpx: ADD
@@ -56,8 +39,25 @@ mixData:
    speedDown: 0
    name: "Steer"
  -
+   destCh: 0
+   srcRaw: "I0"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: REPL
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000000000
+   weight: -100
+   offset: 0
+   swtch: "L9"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "SteerR"
+ -
    destCh: 1
-   srcRaw: "I2"
+   srcRaw: "I1"
    carryTrim: 0
    mixWarn: 0
    mltpx: ADD
@@ -71,24 +71,41 @@ mixData:
    delayDown: 0
    speedUp: 0
    speedDown: 0
-   name: "Weapon"
+   name: "Drive"
  -
-   destCh: 1
-   srcRaw: "MAX"
+   destCh: 2
+   srcRaw: "I2"
    carryTrim: 0
    mixWarn: 0
    mltpx: REPL
    delayPrec: 0
    speedPrec: 0
    flightModes: 000000000
-   weight: -100
-   offset: 0
-   swtch: "!SE2"
+   weight: 50
+   offset: 50
+   swtch: "L7"
    delayUp: 0
    delayDown: 0
    speedUp: 0
    speedDown: 0
-   name: "Safe"
+   name: "WpnF"
+ -
+   destCh: 2
+   srcRaw: "I2"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: REPL
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000000000
+   weight: -50
+   offset: -50
+   swtch: "L8"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: "WpnR"
 expoData: 
  -
    mode: 3
@@ -146,11 +163,112 @@ expoData:
    chn: 3
    flightModes: 000000000
    name: ""
+logicalSw: 
+   0:
+      func: FUNC_VNEG
+      def: "Thr,-98"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   1:
+      func: FUNC_AND
+      def: "SE2,L1"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   2:
+      func: FUNC_STICKY
+      def: "L2,!SE2"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   3:
+      func: FUNC_VPOS
+      def: "GV1,0"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   4:
+      func: FUNC_VPOS
+      def: "SA,-50"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   5:
+      func: FUNC_XOR
+      def: "L4,L5"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   6:
+      func: FUNC_AND
+      def: "L3,!L6"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   7:
+      func: FUNC_AND
+      def: "L3,L6"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   8:
+      func: FUNC_VPOS
+      def: "SA,50"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 0
+      duration: 0
+   9:
+      func: FUNC_VNEG
+      def: "tele(10),70"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 10
+      duration: 0
+   10:
+      func: FUNC_VNEG
+      def: "tele(10),66"
+      andsw: "NONE"
+      lsPersist: 0
+      lsState: 0
+      delay: 10
+      duration: 0
 customFn: 
    0:
       swtch: "ON"
       func: RGB_LED
       def: "combat,1,On"
+   1:
+      swtch: "!L3"
+      func: OVERRIDE_CHANNEL
+      def: "2,0,1"
+   2:
+      swtch: "L10"
+      func: PLAY_SOUND
+      def: "Wrn1,1,5"
+   3:
+      swtch: "L11"
+      func: PLAY_SOUND
+      def: "Wrn2,1,3"
 flightModeData: 
    0:
       trim: 
