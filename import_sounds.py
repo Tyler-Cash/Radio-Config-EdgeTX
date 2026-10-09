@@ -16,7 +16,7 @@ JOBS = [
     ("armed.wav",   "missile_launch.wav", 4, 1.0),  # weapon armed  -> ALR-67 launch x4
     ("disarm.wav",  "deedle.mp3",         1, 1.0),  # weapon safe   -> deedle-deedle
     ("caution.wav", "cavalry.mp3",        4, 1.0),  # master caution-> A320 cavalry x4
-    ("lowbat.wav",  "fuel_low.mp3",       1, 1.0),  # low battery   -> "Fuel low"
+    ("lowbat.wav",  "fuel_low.mp3",       1, 0.45), # low battery   -> "Fuel low" (matched to Bingo)
     ("critbat.wav", "bingo.mp3",          1, 0.45), # critical      -> "Bingo!" low volume
 ]
 

@@ -1,0 +1,50 @@
+name: build-sdcard
+
+# Regenerates the model + sounds + soundboard from source, validates them, and
+# packages an SD-overlay zip you can download and copy onto the EdgeTX card.
+# Pushing a tag like v1.0 also publishes the zip as a GitHub Release.
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to create a Release on tags
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ffmpeg + lua
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg lua5.4 zip
+
+      - name: Build + validate + package
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload SD-overlay artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tx15-ant-sdcard
+          path: dist/*.zip
+          if-no-files-found: error
+
+      - name: Publish Release (on version tags)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          body: |
+            TX15 combat model **ANT** — SD overlay.
+            Download the zip and copy its `MODELS/`, `SCRIPTS/`, `SOUNDS/` onto an
+            EdgeTX 2.12.x SD card (one that already has the base SD contents).
