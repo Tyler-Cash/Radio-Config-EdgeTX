@@ -146,6 +146,11 @@ expoData:
    chn: 3
    flightModes: 000000000
    name: ""
+customFn: 
+   0:
+      swtch: "ON"
+      func: RGB_LED
+      def: "combat,1,On"
 flightModeData: 
    0:
       trim: 

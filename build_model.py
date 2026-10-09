@@ -56,12 +56,18 @@ def main():
     md = ["mixData: "]
     for m in MIXES: md += mix(*m)
     lines[find("mixData:"):find("expoData:")] = md
-    # customFn (replace whole block)
+    # customFn: replace the block if present, else insert it before flightModeData
     cfb = ["customFn: "]
     for i, c in enumerate(CUSTOM_FN): cfb += cf(i, *c)
-    cs, ce = find("customFn:"), find("flightModeData:")
-    if cs != -1 and ce != -1:
-        lines[cs:ce] = cfb
+    cs = find("customFn:")
+    if cs != -1:
+        # end of the existing customFn block = next top-level key
+        end = next((j for j in range(cs + 1, len(lines)) if lines[j] and lines[j][0].isalpha()), len(lines))
+        lines[cs:end] = cfb
+    else:
+        anchor = find("flightModeData:")
+        if anchor == -1: anchor = find("moduleData:")
+        lines[anchor:anchor] = cfb
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     io.open(OUT, "w", encoding="utf-8", newline="").write("\n".join(lines))
     print("wrote", OUT, "(%d lines)" % len(lines))
